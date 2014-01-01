@@ -1,0 +1,38 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[vmargin=4.0cm]{geometry}
+\usepackage[linktocpage=true]{hyperref}
+\usepackage[ddmmyyyy]{datetime}
+\renewcommand{\dateseparator}{.}
+\usepackage{watermark}
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{flushleft}
+\textbf{Course:} Programs as data - E2013
+\end{flushleft}
+\vspace{30mm}
+\centering \parindent=0pt
+\Huge\bfseries
+Programs as data\\[0.7cm]
+\large Eksamens aflevering\\
+\vspace{20mm}
+    Martin Rønning Bech 
+\\  mrob@itu.dk\\
+\vspace{50mm}
+Date: \today
+\end{titlepage}
+
+\input{content}
+
+\end{document}
