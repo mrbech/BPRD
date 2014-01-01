@@ -22,6 +22,7 @@
 \definecolor{greencomments}{rgb}{0,0.5,0}
 \definecolor{turqusnumbers}{rgb}{0.17,0.57,0.69}
 \definecolor{redstrings}{rgb}{0.5,0,0}
+\definecolor{graybg}{rgb}{0.92,0.92,0.92}
 
 \lstdefinelanguage{FSharp}
     {morekeywords={let, new, match, with, rec, open, module, namespace, type, of, member, and, for, in, do, begin, end, fun, function, try, mutable, if, then, else},
@@ -40,13 +41,14 @@
         language=FSharp,
         basicstyle=\ttfamily,
         breaklines=true,
+        numbers=left,
         columns=fullflexible}
   }
   {
   }
 
 \begin{document}
-\includepdf{forside.pdf}
+\includepdf{formal/forside.pdf}
 \begin{titlepage}
 \begin{flushleft}
 \textbf{Course:} Programs as data - E2013
@@ -61,6 +63,10 @@ Programs as data\\[0.7cm]
 \\  mrob@itu.dk\\
 \vspace{50mm}
 Date: \today
+
+\vspace{50mm}
+\includegraphics[width=1.1\textwidth]{formal/sign.png}
+
 \end{titlepage}
 
 \input{content}
