@@ -35,7 +35,7 @@ class Machine {
     GOTO = 16, IFZERO = 17, IFNZRO = 18, CALL = 19, TCALL = 20, RET = 21, 
     PRINTI = 22, PRINTC = 23, 
     LDARGS = 24,
-    STOP = 25;
+    STOP = 25, INDEX = 26;
 
   final static int STACKSIZE = 1000;
   
@@ -133,6 +133,20 @@ class Machine {
 	break;
       case STOP:
         return sp;
+      case INDEX:
+        //s[sp] = s[s[sp]]; break;
+        int a = sp-2;
+        int q = s[a];
+        int n = a - q;
+        int i = s[sp];
+        if(0 <= i && i < n){
+            s[sp-1] = s[s[sp-1]]+s[sp];
+        }else{
+            System.out.println("Array Index Out of Bounds");
+            System.exit(1);
+        }
+        sp--;
+        break;
       default:                  
         throw new RuntimeException("Illegal instruction " + p[pc-1] 
                                    + " at address " + (pc-1));

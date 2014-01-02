@@ -218,8 +218,7 @@ and cAccess access varEnv funEnv : instr list =
       | Glovar addr, _ -> [CSTI addr]
       | Locvar addr, _ -> [GETBP; CSTI addr; ADD]
     | AccDeref e -> cExpr e varEnv funEnv
-    | AccIndex(acc, idx) -> cAccess acc varEnv funEnv 
-                            @ [LDI] @ cExpr idx varEnv funEnv @ [ADD]
+    | AccIndex(acc, idx) -> cAccess acc varEnv funEnv @ cExpr idx varEnv funEnv @ [INDEX]
 
 (* Generate code to evaluate a list es of expressions: *)
 
