@@ -61,6 +61,8 @@ rule Token = parse
   | '='             { ASSIGN } 
   | "=="            { EQ } 
   | "!="            { NE }
+  | "+="            { PEQ }
+  | "-="            { MEQ }
   | '>'             { GT }
   | '<'             { LT }
   | ">="            { GE }

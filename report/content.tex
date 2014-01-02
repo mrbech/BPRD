@@ -14,7 +14,12 @@ CPar.fsy
 In the CPar.fsy file I have added the tokens FOR TO DO and in StmtU and StmtM I
 have added the following code:
 \begin{fs}
+StmtM:
+...
   | FOR NAME ASSIGN Expr TO Expr DO StmtM { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
+...
+StmtU:
+  | FOR NAME ASSIGN Expr TO Expr DO StmtU { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
 \end{fs}
 \subsection{Test}
 Below is my test example code. It uses the for-loop to print the numbers 0 - 10
@@ -45,6 +50,34 @@ This gives me the expect output of:
 0 1 2 3 4 5 6 7 8 9 10
 
 \end{bashcode}
+
+\section{Opgave 2}
+\subsection{Implementation}
+CLex.fsl:
+\begin{fs}
+rule Token = parse
+...
+  | "+="            { PEQ }
+  | "-="            { MEQ }
+...
+\end{fs}
+CPar.fsy:
+\begin{fs}
+%token PEQ MEQ
+...
+%nonassoc GT LT GE LE
+%nonassoc PEQ MEQ 
+%left PLUS MINUS
+...
+\end{fs}
+Absyn.fs:
+\begin{fs}
+
+\end{fs}
+
+
+\subsection{Test}
+\subsection{Result}
 
 \pagebreak
 \section{Appendix}
