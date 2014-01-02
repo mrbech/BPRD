@@ -282,9 +282,9 @@ first be \texttt{20} followed by an Array Index Out of Bounds error.
 
 \section{Opgave 4}
 \subsection{Implementation}
-In the implementation I have assumed that the typs we are looking for at the
-ones resulting for evaluating the access, so that I extract the \texttt{t} from
-\texttt{TypP(t)} etc.
+In the implementation I have assumed that the typs we are looking for are the
+ones resulting for evaluating the access, which means that I extract the
+\texttt{t} from \texttt{TypP(t)} etc.
 
 The implementation of \texttt{tAccess} can be found below. In the case that its
 an variable access, it looks up the type from the \texttt{varEnv}. In the case
