@@ -113,12 +113,12 @@ compiles to the following:
 \begin{enumerate}
     \item Puts the left hand side's stack index on the stack (\texttt{cAccess})
     \item Duplicates the access on the stack, to avoid double evaluation of the
-        left hand side \[DUP\]
-    \item Loads the left hand side value unto the stack \[LDI\]
+        left hand side [DUP]
+    \item Loads the left hand side value unto the stack [LDI]
     \item Evaluates the right hand side expression (\texttt{cExpr})
-    \item Adds or subtracts the expression from the accessed value \[ADD\] \[SUB\] 
+    \item Adds or subtracts the expression from the accessed value [ADD] [SUB] 
     \item Stores the result of the calculation in the left hand side's stack
-        index \[STI\] (left over from \[DUP\])
+        index [STI] (left over from [DUP])
 \end{enumerate}
 The code snippet can be found bellow.
 \begin{fs}
@@ -173,7 +173,11 @@ The output is as expected and can be seen below:
 
 \section{Opgave 3}
 \subsection{Implemetation}
-Machine.fs:
+The \texttt{Machine.fs} file will need to be updated with INDEX added as a new
+instruction, with 26 as its code index. Resulting in a need for updating the
+makelabenv, where the INDEX does not contain anything but itself. The emitted
+instructions will also have to include a new match for INDEX to put the
+CODEINDEX on the instruction list.
 \begin{fs}
 type instr =
     | INDEX 
@@ -189,6 +193,21 @@ let rec emitints getlab instr ints =
 ...
 \end{fs}
 Machine.java:
+The \texttt{Machine.java} abstract machine will also need to be updated to
+support the new instruction. First it needs to be declared as the value 26 it
+can then be matched in the execution loop.
+
+The INDEX case can be found in the code below. I have implemented it very
+explicitly such that it can be seen how each variable is found. First the
+\texttt{a} is calculated and then used to find \texttt{q}, we then subtract
+\texttt{q} from \texttt{a} to find \texttt{n}. 
+The array index accessed can be found as the top stack element I store it in
+\texttt{i} and can then be compared to 0 and \texttt{n}. In the case that
+\texttt{i} is not out of bounds, the stack is updated to set the second top
+element to the index of the first element in the array plus the desired index in
+the array. If \texttt{i} is out of bounds, the error "Array Index Out of Bounds"
+will be printed to the console and the abstract machine will exit with error
+code 1.
 \begin{ccode}
 final static int INDEX = 26;
 static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
@@ -209,17 +228,18 @@ static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
         break;
 ...
 \end{ccode}
-
-Comp.fs:
+Now with the new instruction added we can change the compiler to use this new
+feature. In the \texttt{Comp.fs} file in the function \texttt{cAccess} we can
+change the \texttt{AccIndex} case to the following where we first get the array
+then we evaluate the index expression and then used the INDEX instruction.
 \begin{fs}
-...
 and cAccess access varEnv funEnv : instr list =
     match access with 
     | AccIndex(acc, idx) -> cAccess acc varEnv funEnv @ cExpr idx varEnv funEnv @ [INDEX]
 ...
 \end{fs}
 
-\subsection{Effect of Index Checks}
+\subsection{Index Checks}
 
 \subsection{Test Program}
 \begin{ccode}
