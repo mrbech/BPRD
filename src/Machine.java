@@ -134,13 +134,12 @@ class Machine {
       case STOP:
         return sp;
       case INDEX:
-        //s[sp] = s[s[sp]]; break;
-        int a = sp-2;
+        int a = s[sp-1];
         int q = s[a];
         int n = a - q;
         int i = s[sp];
         if(0 <= i && i < n){
-            s[sp-1] = s[s[sp-1]]+s[sp];
+            s[sp-1] = q+i;
             sp--;
         }else{
             System.out.println("Array Index Out of Bounds");

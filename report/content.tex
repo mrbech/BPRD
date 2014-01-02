@@ -199,27 +199,26 @@ can then be matched in the execution loop.
 
 The INDEX case can be found in the code below. I have implemented it very
 explicitly such that it can be seen how each variable is found. First the
-\texttt{a} is calculated and then used to find \texttt{q}, we then subtract
-\texttt{q} from \texttt{a} to find \texttt{n}. 
-The array index accessed can be found as the top stack element I store it in
-\texttt{i} and can then be compared to 0 and \texttt{n}. In the case that
-\texttt{i} is not out of bounds, the stack is updated to set the second top
-element to the index of the first element in the array plus the desired index in
-the array. If \texttt{i} is out of bounds, the error "Array Index Out of Bounds"
-will be printed to the console and the abstract machine will exit with error
-code 1.
+\texttt{a} is taken from the stack and then used to find \texttt{q}, we then
+subtract \texttt{q} from \texttt{a} to calculate \texttt{n}.  The array index
+accessed can be found as the top stack element I store it in \texttt{i} and can
+then be compared to 0 and \texttt{n}. In the case that \texttt{i} is not out of
+bounds, the stack is updated to set the second top element to \texttt{q} which
+is the start address of the array plus the desired index in the array. If
+\texttt{i} is out of bounds, the error "Array Index Out of Bounds" will be
+printed to the console and the abstract machine will exit with error code 1.
 \begin{ccode}
 final static int INDEX = 26;
 static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
 ...
     switch (p[pc++]) {
-        case INDEX:
-        int a = sp-2;
+      case INDEX:
+        int a = s[sp-1];
         int q = s[a];
         int n = a - q;
         int i = s[sp];
         if(0 <= i && i < n){
-            s[sp-1] = s[s[sp-1]]+s[sp];
+            s[sp-1] = q+i;
             sp--;
         }else{
             System.out.println("Array Index Out of Bounds");
@@ -240,11 +239,19 @@ and cAccess access varEnv funEnv : instr list =
 \end{fs}
 
 \subsection{Index Checks}
+The \texttt{AccIndex} is used for any array access, where it leaves the index of
+the array access in the stack on the stack top. The array access can be used for assignments
+to the array such as \texttt{arr[i] = 42} where we load the index and uses it to
+save to the array. The array access can also be used in the case of just loading
+the value from the array such as \texttt{x = arr[i] + 2}, where we load the
+index and uses to load the value. In both cases the new index implementation
+will be used, resulting in an index bound checking on both cases.
 
 \subsection{Test Program}
+Below is my test code.
 \begin{ccode}
 void main(int i, int j) {
-    int arr[16];
+    int arr[3];
     arr[0] = 10;
     arr[1] = 20;
     arr[2] = 30;
@@ -254,20 +261,37 @@ void main(int i, int j) {
 }
 \end{ccode}
 \subsection{Result}
+i=1 and j=1 should output \texttt{20 42} because \texttt{arr[1] = 20}. This
+demonstrates what happens when none of the accesses are out of bounds.
 \begin{bashcode}
 % java Machine examples/ex3.out 1 1
 20 42 
-
+\end{bashcode}
+i=16 and j=1, here i is out of bounds, creating an "Array Index Out of Bounds"
+error with no other output.
+\begin{bashcode}
 % java Machine examples/ex3.out 16 1
 Array Index Out of Bounds
-
+\end{bashcode}
+i=1 and j=16, here j is out of bounds but i is not therefor the output will
+first be \texttt{20} followed by an Array Index Out of Bounds error.
+\begin{bashcode}
 % java Machine examples/ex3.out 1 16
 20 Array Index Out of Bounds
 \end{bashcode}
 
 \section{Opgave 4}
 \subsection{Implementation}
+In the implementation I have assumed that the typs we are looking for at the
+ones resulting for evaluating the access, so that I extract the \texttt{t} from
+\texttt{TypP(t)} etc.
 
+The implementation of \texttt{tAccess} can be found below. In the case that its
+an variable access, it looks up the type from the \texttt{varEnv}. In the case
+of an deference access, we use the \texttt{tExpr} to evaluate the expression and returns
+the pointers type. In the case of an index access we first check that the
+expression is of type \texttt{TypI} and then we used the tAccess recursively to
+find the access type and from that we can return the type.
 \begin{fs}
 let rec tExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : typ =
     failwith "not implemented"
@@ -296,6 +320,12 @@ and tAccess (access : access) (varEnv : varEnv) (funEnv : funEnv) : typ =
 \pagebreak
 \section{Appendix}
 \subsection{mcc.fs}
+The following fsharp code is an implementation of a main function that compiles
+MicroC code from a file and outputs the code into an other file as well as
+outputting the instruction set code to the console. The code is originally
+created by me and Mikkel Larsen for use in our MicroC handins, I saw no reason
+to create a new one for this exame. It is used by giving it two arguments: the
+input file and the output file \texttt{./mcc.exe <input> <output>}. 
 \begin{fs}
 module mcc
 
@@ -307,4 +337,8 @@ let main(args) =
     0;;
 \end{fs}
 \subsection{Makefile}
+The following is the make file I use to compile the MicroC compiler, it first
+compiles the parser and lexer and then it compiles the fsharp code for MicroC.
+The makefile can be run by GNU Make and have been used with GNU Make 3.81 and is
+used by \texttt{make}.
 \lstinputlisting[numbers=left, language=make, breaklines=true]{../src/Makefile}
