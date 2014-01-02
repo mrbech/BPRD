@@ -121,6 +121,80 @@ The output is as expected:
 10 100 1
 \end{bashcode}
 
+\section{Opgave 3}
+\subsection{Implemetation}
+Machine.fs:
+\begin{fs}
+type instr =
+    | INDEX 
+...
+let CODEINDEX  = 26
+let makelabenv (addr, labenv) instr = 
+    match instr with
+    | INDEX          -> (addr+1, labenv)
+...
+let rec emitints getlab instr ints = 
+    match instr with
+    | INDEX          -> CODEINDEX  :: ints
+...
+\end{fs}
+Machine.java:
+\begin{ccode}
+final static int INDEX = 26;
+static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
+...
+    switch (p[pc++]) {
+        case INDEX:
+        int a = sp-2;
+        int q = s[a];
+        int n = a - q;
+        int i = s[sp];
+        if(0 <= i && i < n){
+            s[sp-1] = s[s[sp-1]]+s[sp];
+            sp--;
+        }else{
+            System.out.println("Array Index Out of Bounds");
+            System.exit(1);
+        }
+        break;
+...
+\end{ccode}
+
+Comp.fs:
+\begin{fs}
+...
+and cAccess access varEnv funEnv : instr list =
+    match access with 
+    | AccIndex(acc, idx) -> cAccess acc varEnv funEnv @ cExpr idx varEnv funEnv @ [INDEX]
+...
+\end{fs}
+
+\subsection{Effect of Index Checks}
+
+\subsection{Test Program}
+\begin{ccode}
+void main(int i, int j) {
+    int arr[16];
+    arr[0] = 10;
+    arr[1] = 20;
+    arr[2] = 30;
+    print arr[i];
+    arr[j] = 42;
+    print arr[j];
+}
+\end{ccode}
+\subsection{Result}
+\begin{bashcode}
+% java Machine examples/ex3.out 1 1
+20 42 
+
+% java Machine examples/ex3.out 16 1
+Array Index Out of Bounds
+
+% java Machine examples/ex3.out 1 16
+20 Array Index Out of Bounds
+\end{bashcode}
+
 \pagebreak
 \section{Appendix}
 mcc.fs:

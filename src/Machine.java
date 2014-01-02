@@ -141,11 +141,11 @@ class Machine {
         int i = s[sp];
         if(0 <= i && i < n){
             s[sp-1] = s[s[sp-1]]+s[sp];
+            sp--;
         }else{
             System.out.println("Array Index Out of Bounds");
             System.exit(1);
         }
-        sp--;
         break;
       default:                  
         throw new RuntimeException("Illegal instruction " + p[pc-1] 
