@@ -1,6 +1,10 @@
+\section*{Introduction}
+TODO
+
 \section{Opgave 1}
 \subsection{Implementation}
-CLex.fsl
+The changes needed for CLex.fsl consists of adding the "for", "to" and "do"
+keywords to the lexer.
 \begin{fs}
 let keyword s =
     match s with
@@ -10,10 +14,27 @@ let keyword s =
     | "do"      -> DO
     ...
 \end{fs}
-CPar.fsy
-In the CPar.fsy file I have added the tokens FOR TO DO and in StmtU and StmtM I
-have added the following code:
+The CPar.fsy parser then needs to be extended with the \texttt{FOR}, \texttt{TO}
+and \texttt{DO} tokens to work with the Lexer. It is then possible to add the
+new for-to loop statement in the StmtM and StmtU declaration. I have chosen to
+directly parse the for-to loop into already existing abstract syntex. Therefor I
+have made no changes to \texttt{Comp.fs} or \texttt{Absyn.fs}.
+
+The for-to loop is translated as shown in the given assignment, using a while
+loop and doing the following: 
+\begin{enumerate}
+    \item Inside of a block it first declare the counting variable and assign it
+        to the initial value given by the user. 
+    \item It then insert a while loop that loops until the counting variable
+        have reached the limit that the user have set. 
+    \item Inside the while loop we insert the users statement and end the while
+        loop by increment the counting variable.
+\end{enumerate}
+The code snippets can be found bellow:
+
 \begin{fs}
+%token FOR TO DO
+...
 StmtM:
 ...
   | FOR NAME ASSIGN Expr TO Expr DO StmtM { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
@@ -53,7 +74,8 @@ This gives me the expect output of:
 
 \section{Opgave 2}
 \subsection{Implementation}
-CLex.fsl:
+For the \texttt{CLex.fsl} lexer the plus equal and minus equal tokens are needed
+and can be seen below.
 \begin{fs}
 rule Token = parse
 ...
@@ -61,7 +83,10 @@ rule Token = parse
   | "-="            { MEQ }
 ...
 \end{fs}
-CPar.fsy:
+The \texttt{CPar.fsy} parser will also need the two new tokens. We also need to add precedence for
+the two new tokens, they are non-associative similar to greater-than, less-than
+etc. The expressions can then be added to the \texttt{ExprNotAccess} declaration as seen
+bellow, being parsed into two new abstract syntax expressions.
 \begin{fs}
 %token PEQ MEQ
 ...
@@ -75,13 +100,27 @@ ExprNotAccess:
   | Access MEQ Expr                     { MinusEq($1, $3)     } 
 
 \end{fs}
-Absyn.fs:
+In the abstract syntax found in the \texttt{Absyn.fs} file we add the two new
+expression to the \texttt{expr} declaration. The both consists of a tuple of type access and expression.
 \begin{fs}
 and expr =                                                         
   | PlusEq of access * expr          (* x+=e or *p+=e or a[e]+=e    *)
   | MinusEq of access * expr         (* x-=e or *p-=e or a[e]-=e    *)
 \end{fs}
-Comp.fs:
+In the compiler implementation found in \texttt{Comp.fs} we add two new match
+cases in \texttt{cExpre}. The two expressions have a similar implementation, and
+compiles to the following:
+\begin{enumerate}
+    \item Puts the left hand side's stack index on the stack (\texttt{cAccess})
+    \item Duplicates the access on the stack, to avoid double evaluation of the
+        left hand side \[DUP\]
+    \item Loads the left hand side value unto the stack \[LDI\]
+    \item Evaluates the right hand side expression (\texttt{cExpr})
+    \item Adds or subtracts the expression from the accessed value \[ADD\] \[SUB\] 
+    \item Stores the result of the calculation in the left hand side's stack
+        index \[STI\] (left over from \[DUP\])
+\end{enumerate}
+The code snippet can be found bellow.
 \begin{fs}
 and cExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : instr list = 
 ...
@@ -89,7 +128,18 @@ and cExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : instr list =
     | MinusEq(acc, e)  -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ cExpr e varEnv funEnv @ [SUB] @ [STI]
 \end{fs}
 
-\subsection{Test}
+\subsection{Test Example}
+Below is my test example code. It starts by declaring a new array with two
+elements and a variable \texttt{i}, it then initialises i to 0, the first element the
+array to 10 and the second element of the array to 100.
+
+To test that there are no double access of \texttt{i} as describe in the
+exercise, we assign the \texttt{i} variable to it self plus on and in the same
+expression uses it to access and plus equal the array element with 100. We then
+print the two array elements and the i, the result should be that \texttt{10 200
+1} is printed, if there is no double access and the update have happened
+successfully. The minus equal is the tested in a similar fashion using a
+variable \texttt{j} and should result in \texttt{10 100 1} printed.
 \begin{ccode}
 void main() {
     int arr[2];
@@ -114,7 +164,7 @@ void main() {
 }
 \end{ccode}
 \subsection{Result}
-The output is as expected:
+The output is as expected and can be seen below:
 \begin{bashcode}
 % java Machine examples/ex2.out
 10 200 1 
@@ -195,9 +245,12 @@ Array Index Out of Bounds
 20 Array Index Out of Bounds
 \end{bashcode}
 
+\section{Opgave 4}
+\subsection{Implementation}
+
 \pagebreak
 \section{Appendix}
-mcc.fs:
+\subsection{mcc.fs}
 \begin{fs}
 module mcc
 
@@ -208,5 +261,5 @@ let main(args) =
     printf "%A" (compileToFile (fromFile args.[0]) args.[1])
     0;;
 \end{fs}
-Makefile:
-\lstinputlisting[numbers=left, language=make]{../src/Makefile}
+\subsection{Makefile}
+\lstinputlisting[numbers=left, language=make, breaklines=true]{../src/Makefile}
