@@ -276,14 +276,17 @@ let rec tExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : typ =
     failwith "not implemented"
 and tAccess (access : access) (varEnv : varEnv) (funEnv : funEnv) : typ =
     match access with
-    | AccVar(s) -> //Check that variable is in the varEnv and return its type
+    | AccVar(s) -> 
+      //Check that variable is in the varEnv and return its type
       match lookup (fst varEnv) s with
       | _ , t -> t
-    | AccDeref(e) -> //Check that e is of type TypP and return its type
+    | AccDeref(e) -> 
+      //Check that e is of type TypP and return its type
       match tExpr e varEnv funEnv with
       | TypP(t) -> t
       | _ -> failwith "type error"
-    | AccIndex(a,e) -> //Check that e is of TypI and check that type of a is TypP or TypA
+    | AccIndex(a,e) -> 
+      //Check that e is of TypI and check that type of a is TypP or TypA
       match tExpr e varEnv funEnv with
       | TypI -> 
         match tAccess a varEnv funEnv with
@@ -291,4 +294,3 @@ and tAccess (access : access) (varEnv : varEnv) (funEnv : funEnv) : typ =
         | TypA(t,_) -> t
         | _ -> failwith "type error"
       | _ -> failwith "type error"
-    
