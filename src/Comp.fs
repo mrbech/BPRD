@@ -165,6 +165,8 @@ and cExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : instr list =
     match e with
     | Access acc     -> cAccess acc varEnv funEnv @ [LDI] 
     | Assign(acc, e) -> cAccess acc varEnv funEnv @ cExpr e varEnv funEnv @ [STI]
+    | PlusEq(acc, e)  -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ cExpr e varEnv funEnv @ [ADD] @ [STI]
+    | MinusEq(acc, e)  -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ cExpr e varEnv funEnv @ [SUB] @ [STI]
     | CstI i         -> [CSTI i]
     | Addr acc       -> cAccess acc varEnv funEnv
     | Prim1(ope, e1) ->

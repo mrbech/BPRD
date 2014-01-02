@@ -69,15 +69,57 @@ CPar.fsy:
 %nonassoc PEQ MEQ 
 %left PLUS MINUS
 ...
+ExprNotAccess:
+...
+  | Access PEQ Expr                     { PlusEq($1, $3)      } 
+  | Access MEQ Expr                     { MinusEq($1, $3)     } 
+
 \end{fs}
 Absyn.fs:
 \begin{fs}
-
+and expr =                                                         
+  | PlusEq of access * expr          (* x+=e or *p+=e or a[e]+=e    *)
+  | MinusEq of access * expr         (* x-=e or *p-=e or a[e]-=e    *)
+\end{fs}
+Comp.fs:
+\begin{fs}
+and cExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : instr list = 
+...
+    | PlusEq(acc, e)  -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ cExpr e varEnv funEnv @ [ADD] @ [STI]
+    | MinusEq(acc, e)  -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ cExpr e varEnv funEnv @ [SUB] @ [STI]
 \end{fs}
 
-
 \subsection{Test}
+\begin{ccode}
+void main() {
+    int arr[2];
+    int i;
+    i = 0;
+    arr[0] = 10;
+    arr[1] = 100;
+    
+    arr[i=i+1] += 100;
+    print arr[0];
+    print arr[1];
+    print i;
+    println;
+
+    int j;
+    j = 2;
+    arr[j=j-1] -= 100;
+    print arr[0];
+    print arr[1];
+    print j;
+    println;
+}
+\end{ccode}
 \subsection{Result}
+The output is as expected:
+\begin{bashcode}
+% java Machine examples/ex2.out
+10 200 1 
+10 100 1
+\end{bashcode}
 
 \pagebreak
 \section{Appendix}
