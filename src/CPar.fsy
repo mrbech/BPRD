@@ -108,6 +108,7 @@ StmtU:
     IF LPAR Expr RPAR StmtM ELSE StmtU  { If($3, $5, $7)       }
   | IF LPAR Expr RPAR Stmt              { If($3, $5, Block []) }
   | WHILE LPAR Expr RPAR StmtU          { While($3, $5)        }
+  | FOR NAME ASSIGN Expr TO Expr DO StmtM { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
 ;
 
 Expr: 

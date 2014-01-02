@@ -46,6 +46,40 @@
   }
   {
   }
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+\lstnewenvironment{ccode}
+  {
+    \lstset{
+        language=C,
+        basicstyle=\ttfamily,
+        breaklines=true,
+        numbers=left,
+        columns=fullflexible}
+  }
+  {
+  }
+\lstnewenvironment{bashcode}
+  {
+    \lstset{
+        language=make,
+        basicstyle=\ttfamily,
+        breaklines=true,
+        numbers=left,
+        columns=fullflexible}
+  }
+  {
+  }
 
 \begin{document}
 \includepdf{formal/forside.pdf}

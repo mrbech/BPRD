@@ -1,4 +1,5 @@
 \section{Opgave 1}
+\subsection{Implementation}
 CLex.fsl
 \begin{fs}
 let keyword s =
@@ -10,8 +11,53 @@ let keyword s =
     ...
 \end{fs}
 CPar.fsy
+In the CPar.fsy file I have added the tokens FOR TO DO and in StmtU and StmtM I
+have added the following code:
 \begin{fs}
-%token FOR TO DO
-...
-
+  | FOR NAME ASSIGN Expr TO Expr DO StmtM { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
 \end{fs}
+\subsection{Test}
+Below is my test example code. It uses the for-loop to print the numbers 0 - 10
+and ends by printing a newline. Resulting in an output like the following:
+\texttt{0 1 2 3 4 5 6 7 8 9 10}
+\begin{ccode}
+void main() {
+  for i=0 to 10 do 
+    print i;
+
+  println;
+}
+\end{ccode}
+\subsection{Result}
+To run the example I use two extra file, one called mcc.fs and Makefile both can
+be found in the appendix with a short description of what they do. With the two
+files in the same directory as the MicroC code and the example code stored in
+\texttt{examples} directory I can do the following to test my example:
+\begin{bashcode}
+make
+./mcc.exe examples/ex1.c examples/ex1.out
+javac Machine.java
+java Machine examples/ex1.out
+\end{bashcode}
+This gives me the expect output of:
+\begin{bashcode}
+% java Machine examples/ex2.out
+0 1 2 3 4 5 6 7 8 9 10
+
+\end{bashcode}
+
+\pagebreak
+\section{Appendix}
+mcc.fs:
+\begin{fs}
+module mcc
+
+open ParseAndComp
+
+[<EntryPoint>]
+let main(args) =
+    printf "%A" (compileToFile (fromFile args.[0]) args.[1])
+    0;;
+\end{fs}
+Makefile:
+\lstinputlisting[numbers=left, language=make]{../src/Makefile}
