@@ -1,7 +1,17 @@
-\section{Content}
+\section{Opgave 1}
+CLex.fsl
 \begin{fs}
-let rec fibo = function
-| 0 -> 0
-| 1 -> 1
-| n -> fib(n-1) + fib(n-2);;
+let keyword s =
+    match s with
+    ...
+    | "for"     -> FOR
+    | "to"      -> TO
+    | "do"      -> DO
+    ...
+\end{fs}
+CPar.fsy
+\begin{fs}
+%token FOR TO DO
+...
+
 \end{fs}
