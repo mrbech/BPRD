@@ -3,6 +3,7 @@ TODO
 
 \section{Opgave 1}
 \subsection{Implementation}
+\subsubsection*{CLex.fsl}
 The changes needed for CLex.fsl consists of adding the "for", "to" and "do"
 keywords to the lexer.
 \begin{fs}
@@ -14,7 +15,8 @@ let keyword s =
     | "do"      -> DO
     ...
 \end{fs}
-The CPar.fsy parser then needs to be extended with the \texttt{FOR}, \texttt{TO}
+\subsubsection*{CPar.fsy}
+The \texttt{CPar.fsy} parser then needs to be extended with the \texttt{FOR}, \texttt{TO}
 and \texttt{DO} tokens to work with the Lexer. It is then possible to add the
 new for-to loop statement in the StmtM and StmtU declaration. I have chosen to
 directly parse the for-to loop into already existing abstract syntex. Therefor I

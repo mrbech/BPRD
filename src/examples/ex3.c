@@ -1,6 +1,5 @@
 void main(int i, int j) {
-    int arr[16];
-    int arg[1];
+    int arr[3];
     arr[0] = 10;
     arr[1] = 20;
     arr[2] = 30;
