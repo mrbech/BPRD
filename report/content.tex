@@ -47,7 +47,7 @@ The for-to loop is translated as shown in the assignment by the parser:
     \item It then inserts a while loop that loops until the counting variable
         have reached the limit that the user have set (\texttt{While},
         \texttt{Prim2("<=",...)} and \texttt{AccVar}).
-    \item Inside the while loop we insert the users statement and end the while
+    \item Inside the while loop it inserts the users statement and end the while
         loop by increment the counting variable (\texttt{Stmt}, \texttt{Assign},
         \texttt{Prim2("+",...)}, \texttt{AccVar} and \texttt{CstI(1)}).
 \end{enumerate}
@@ -125,7 +125,7 @@ ExprNotAccess:
 
 \end{ccode}
 \subsubsection*{Absyn.fs}
-In the abstract syntax found in the \texttt{Absyn.fs} file we add the two new
+In the abstract syntax found in the \texttt{Absyn.fs} file I add the two new
 expression to the \texttt{expr} declaration. They both consists of a tuple of
 type access and expression.
 \begin{fs}
@@ -137,7 +137,7 @@ and expr =
 \end{fs}
 
 \subsubsection*{Comp.fs}
-In the compiler implementation found in \texttt{Comp.fs} we add two new match
+In the compiler implementation found in \texttt{Comp.fs} I add two new match
 cases in \texttt{cExpre}. The two expressions have a similar implementation, and
 compiles to the following:
 \begin{enumerate}
@@ -167,7 +167,7 @@ elements and a variable \texttt{i}, it then initialises i to 0, the first elemen
 array to 10 and the second element of the array to 100.
 
 To test that there are no double access of \texttt{i} as describe in the
-exercise, we use the expression of assigning the \texttt{i} variable to it self
+exercise, I use the expression of assigning the \texttt{i} variable to it self
 plus one and uses it to access and plus equal the array element with 100. We
 then print the two array elements and the i, the result should be that
 \texttt{10 200 1} is printed, if there is no double access and the update have
@@ -234,7 +234,7 @@ can then be matched in the execution loop.
 
 The INDEX case can be found in the code below. I have implemented it very
 explicitly such that it can be seen how each variable is found. First the
-\texttt{a} is taken from the stack and then used to find \texttt{q}, we then
+\texttt{a} is taken from the stack and then used to find \texttt{q}, I then
 subtract \texttt{q} from \texttt{a} to calculate \texttt{n}. The array index
 accessed can be found at the top of the stack, I store it in \texttt{i}. The
 array index can then be compared to 0 and \texttt{n} to determine if it is out
@@ -267,8 +267,8 @@ static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
 ...
 \end{ccode}
 \subsubsection*{Comp.fs}
-Now with the new instruction added we can change the compiler to use this new
-feature. In the \texttt{Comp.fs} file in the function \texttt{cAccess} we can
+Now with the new instruction added I can change the compiler to use this new
+feature. In the \texttt{Comp.fs} file in the function \texttt{cAccess} I can
 change the \texttt{AccIndex} case to the following:
 \begin{fs}
 ...
@@ -283,7 +283,7 @@ The \texttt{AccIndex} is used for any array access, where it leaves the index of
 the array access on the stack top. The array access will be used for assignments
 to the array such as \texttt{arr[i] = 42} where it loads the index and uses it
 to save to the array. The array access will also be used in the case of just
-loading the value from the array such as \texttt{x = arr[i] + 2}, where we load
+loading the value from the array such as \texttt{x = arr[i] + 2}, where I load
 the index and uses to load the value. In both cases the new index implementation
 will be used like the old did, resulting in an index bound checking on both
 cases.
@@ -326,18 +326,25 @@ first be \texttt{20} followed by an Array Index Out of Bounds error.
 20 Array Index Out of Bounds
 \end{bashcode}
 
+\texttt{i=-1} and \texttt{j=1}, here i is out of bounds on the lower bound and
+is below 0, resulting in an out of bounds error.
+\begin{bashcode}
+% java Machine examples/ex3.out -1 1
+Array Index Out of Bounds
+\end{bashcode}
+
 \section{Opgave 4}
 \subsection{Implementation}
-In the implementation I have assumed that the typs we are looking for are the
+In the implementation I have assumed that the typs I are looking for are the
 ones resulting for evaluating the access, which means that I extract the
 \texttt{t} from \texttt{TypP(t)} etc.
 
 The implementation of \texttt{tAccess} can be found below. In the case that its
 a variable access, it looks up the type from the \texttt{varEnv}. In the case of
-an deference access, we use the \texttt{tExpr} to evaluate the expression and
-return the pointers type. In the case of an index access we first check that the
-expression is of type \texttt{TypI} and then we used the tAccess recursively to
-find the access type and from that we can return the type.
+an deference access, I use the \texttt{tExpr} to evaluate the expression and
+return the pointers type. In the case of an index access I first check that the
+expression is of type \texttt{TypI} and then I used the tAccess recursively to
+find the access type and from that I can return the type.
 \begin{fs}
 let rec tExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : typ =
     failwith "not implemented"
