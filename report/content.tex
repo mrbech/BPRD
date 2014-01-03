@@ -1,39 +1,55 @@
 \section*{Introduction}
-TODO
+The following report is Martin Rønning Bech's answer to the Programs as Data
+(BPRD) E2013 examination. It is split into 4 sections for each of the
+assignments, with each question having a subsection. So the solution for
+assignment 3 question 2 can be found in section 3.2. The code snippets for each
+of the questions can be found in the corresponding question section, the code
+have been cut out of the file and \texttt{...} is used to denote omitted code
+sections. Two files can found in the Appendix that I use for compiling the
+MicroC compiler, the first is a main function and the second is my make file,
+for a more detailed description of each file see the appendix.
+
+The code have been compiled on Linux Ubuntu 12.10 using F\# version 3.0 (Open
+Source Edition), FSharpPowerPack version 4.0, javac version 1.7.0\_45 and run
+using Java 1.7.0\_45 from Oracle.
+
+\tableofcontents
+\pagebreak
+
 
 \section{Opgave 1}
 \subsection{Implementation}
 \subsubsection*{CLex.fsl}
-The changes needed for CLex.fsl consists of adding the "for", "to" and "do"
+The changes needed for \texttt{CLex.fsl} consists of adding the "for", "to" and "do"
 keywords to the lexer.
 \begin{fs}
 let keyword s =
     match s with
-    ...
     | "for"     -> FOR
     | "to"      -> TO
     | "do"      -> DO
     ...
 \end{fs}
 \subsubsection*{CPar.fsy}
-The \texttt{CPar.fsy} parser then needs to be extended with the \texttt{FOR}, \texttt{TO}
-and \texttt{DO} tokens to work with the Lexer. It is then possible to add the
-new for-to loop statement in the StmtM and StmtU declaration. I have chosen to
-directly parse the for-to loop into already existing abstract syntex. Therefor I
-have made no changes to \texttt{Comp.fs} or \texttt{Absyn.fs}.
+The \texttt{CPar.fsy} parser then needs to be extended with the \texttt{FOR},
+\texttt{TO} and \texttt{DO} tokens. It is then possible to add the new for-to
+loop statement in the \texttt{StmtM} and \texttt{StmtU} declaration. I have
+chosen to directly parse the for-to loop into already existing abstract syntax,
+therefor I have made no changes to \texttt{Comp.fs} or \texttt{Absyn.fs}.
 
-The for-to loop is translated as shown in the given assignment, using a while
-loop and doing the following: 
+The for-to loop is translated as shown in the assignment by the parser: 
 \begin{enumerate}
-    \item Inside of a block it first declare the counting variable and assign it
-        to the initial value given by the user. 
-    \item It then insert a while loop that loops until the counting variable
-        have reached the limit that the user have set. 
+    \item Inside of the block it first declares the counting variable and
+        assigns it to the initial value given by the user (\texttt{Block},
+        \texttt{Dec} and \texttt{Assign}).
+    \item It then inserts a while loop that loops until the counting variable
+        have reached the limit that the user have set (\texttt{While},
+        \texttt{Prim2("<=",...)} and \texttt{AccVar}).
     \item Inside the while loop we insert the users statement and end the while
-        loop by increment the counting variable.
+        loop by increment the counting variable (\texttt{Stmt}, \texttt{Assign},
+        \texttt{Prim2("+",...)}, \texttt{AccVar} and \texttt{CstI(1)}).
 \end{enumerate}
-The code snippets can be found bellow:
-
+The code snippets for \texttt{CPar.fsy} can be found bellow:
 \begin{fs}
 %token FOR TO DO
 ...
@@ -45,7 +61,7 @@ StmtU:
   | FOR NAME ASSIGN Expr TO Expr DO StmtU { Block[Dec(TypI, $2); Stmt(Expr(Assign(AccVar($2), $4))); Stmt(While(Prim2("<=", Access(AccVar($2)), $6), Block[Stmt($8);Stmt(Expr(Assign(AccVar($2), Prim2("+", Access(AccVar($2)), CstI(1)))))]))] }
 \end{fs}
 \subsection{Test}
-Below is my test example code. It uses the for-loop to print the numbers 0 - 10
+Below is my test example code. It uses the for-to loop to print the numbers 0 - 10
 and ends by printing a newline. Resulting in an output like the following:
 \texttt{0 1 2 3 4 5 6 7 8 9 10}
 \begin{ccode}
@@ -57,27 +73,28 @@ void main() {
 }
 \end{ccode}
 \subsection{Result}
-To run the example I use two extra file, one called mcc.fs and Makefile both can
+To run the example I use two extra file, one called mcc.fs and a make file both can
 be found in the appendix with a short description of what they do. With the two
 files in the same directory as the MicroC code and the example code stored in
 \texttt{examples} directory I can do the following to test my example:
 \begin{bashcode}
-make
-./mcc.exe examples/ex1.c examples/ex1.out
-javac Machine.java
-java Machine examples/ex1.out
+% make
+% ./mcc.exe examples/ex1.c examples/ex1.out
+% javac Machine.java
+% java Machine examples/ex1.out
 \end{bashcode}
 This gives me the expect output of:
 \begin{bashcode}
-% java Machine examples/ex2.out
+% java Machine examples/ex1.out
 0 1 2 3 4 5 6 7 8 9 10
 
 \end{bashcode}
 
 \section{Opgave 2}
 \subsection{Implementation}
-For the \texttt{CLex.fsl} lexer the plus equal and minus equal tokens are needed
-and can be seen below.
+\subsubsection*{CLex.fsl}
+The changes needed for \texttt{CLex.fsl} consists of adding the plus equal and
+minus equal tokens to the lexer.
 \begin{fs}
 rule Token = parse
 ...
@@ -85,10 +102,12 @@ rule Token = parse
   | "-="            { MEQ }
 ...
 \end{fs}
-The \texttt{CPar.fsy} parser will also need the two new tokens. We also need to add precedence for
-the two new tokens, they are non-associative similar to greater-than, less-than
-etc. The expressions can then be added to the \texttt{ExprNotAccess} declaration as seen
-bellow, being parsed into two new abstract syntax expressions.
+\subsubsection*{CPar.fsy}
+The \texttt{CPar.fsy} parser will also need the two new tokens. We also need to
+add precedence for the two new tokens, they are non-associative similar to
+greater-than, less-than etc. The expressions can then be added to the
+\texttt{ExprNotAccess} declaration as seen bellow, being parsed into two new
+abstract syntax expressions.
 \begin{fs}
 %token PEQ MEQ
 ...
@@ -102,25 +121,30 @@ ExprNotAccess:
   | Access MEQ Expr                     { MinusEq($1, $3)     } 
 
 \end{fs}
+\subsubsection*{Absyn.fs}
 In the abstract syntax found in the \texttt{Absyn.fs} file we add the two new
-expression to the \texttt{expr} declaration. The both consists of a tuple of type access and expression.
+expression to the \texttt{expr} declaration. They both consists of a tuple of
+type access and expression.
 \begin{fs}
 and expr =                                                         
   | PlusEq of access * expr          (* x+=e or *p+=e or a[e]+=e    *)
   | MinusEq of access * expr         (* x-=e or *p-=e or a[e]-=e    *)
 \end{fs}
+
+\subsubsection*{Comp.fs}
 In the compiler implementation found in \texttt{Comp.fs} we add two new match
 cases in \texttt{cExpre}. The two expressions have a similar implementation, and
 compiles to the following:
 \begin{enumerate}
     \item Puts the left hand side's stack index on the stack (\texttt{cAccess})
     \item Duplicates the access on the stack, to avoid double evaluation of the
-        left hand side [DUP]
-    \item Loads the left hand side value unto the stack [LDI]
+        left hand side ([DUP])
+    \item Loads the left hand side value unto the stack ([LDI])
     \item Evaluates the right hand side expression (\texttt{cExpr})
-    \item Adds or subtracts the expression from the accessed value [ADD] [SUB] 
+    \item Adds or subtracts the expression from the accessed value ([ADD])
+        ([SUB]) 
     \item Stores the result of the calculation in the left hand side's stack
-        index [STI] (left over from [DUP])
+        index ([STI]) (Left over from [DUP])
 \end{enumerate}
 The code snippet can be found bellow.
 \begin{fs}
@@ -136,12 +160,13 @@ elements and a variable \texttt{i}, it then initialises i to 0, the first elemen
 array to 10 and the second element of the array to 100.
 
 To test that there are no double access of \texttt{i} as describe in the
-exercise, we assign the \texttt{i} variable to it self plus on and in the same
-expression uses it to access and plus equal the array element with 100. We then
-print the two array elements and the i, the result should be that \texttt{10 200
-1} is printed, if there is no double access and the update have happened
-successfully. The minus equal is the tested in a similar fashion using a
-variable \texttt{j} and should result in \texttt{10 100 1} printed.
+exercise, we use the expression of assigning the \texttt{i} variable to it self
+plus one and uses it to access and plus equal the array element with 100. We
+then print the two array elements and the i, the result should be that
+\texttt{10 200 1} is printed, if there is no double access and the update have
+happened successfully. The minus equal is the tested in a similar fashion using
+a variable \texttt{j} and should result in \texttt{10 100 1} being printed. The
+test code can be seen below
 \begin{ccode}
 void main() {
     int arr[2];
@@ -166,7 +191,8 @@ void main() {
 }
 \end{ccode}
 \subsection{Result}
-The output is as expected and can be seen below:
+The output is as expected \texttt{10 200 1} and \texttt{10 100 1} and a test run
+can be seen below:
 \begin{bashcode}
 % java Machine examples/ex2.out
 10 200 1 
@@ -175,11 +201,11 @@ The output is as expected and can be seen below:
 
 \section{Opgave 3}
 \subsection{Implemetation}
+\subsubsection*{Machine.fs}
 The \texttt{Machine.fs} file will need to be updated with INDEX added as a new
-instruction, with 26 as its code index. Resulting in a need for updating the
-makelabenv, where the INDEX does not contain anything but itself. The emitted
-instructions will also have to include a new match for INDEX to put the
-CODEINDEX on the instruction list.
+instruction, with 26 as its code. Resulting in a need for updating the
+makelabenv. The emitted instructions will also have to include a new match for
+INDEX to put the CODEINDEX on the instruction list.
 \begin{fs}
 type instr =
     | INDEX 
@@ -194,7 +220,7 @@ let rec emitints getlab instr ints =
     | INDEX          -> CODEINDEX  :: ints
 ...
 \end{fs}
-Machine.java:
+\subsubsection*{Machine.java}
 The \texttt{Machine.java} abstract machine will also need to be updated to
 support the new instruction. First it needs to be declared as the value 26 it
 can then be matched in the execution loop.
@@ -202,13 +228,17 @@ can then be matched in the execution loop.
 The INDEX case can be found in the code below. I have implemented it very
 explicitly such that it can be seen how each variable is found. First the
 \texttt{a} is taken from the stack and then used to find \texttt{q}, we then
-subtract \texttt{q} from \texttt{a} to calculate \texttt{n}.  The array index
-accessed can be found as the top stack element I store it in \texttt{i} and can
-then be compared to 0 and \texttt{n}. In the case that \texttt{i} is not out of
-bounds, the stack is updated to set the second top element to \texttt{q} which
-is the start address of the array plus the desired index in the array. If
-\texttt{i} is out of bounds, the error "Array Index Out of Bounds" will be
-printed to the console and the abstract machine will exit with error code 1.
+subtract \texttt{q} from \texttt{a} to calculate \texttt{n}. The array index
+accessed can be found at the top of the stack, I store it in \texttt{i}. The
+array index can then be compared to 0 and \texttt{n} to determine if it is out
+of bounds or not. 
+
+In the case that \texttt{i} is not out of bounds, the stack is updated to set
+the second top element (\texttt{sp-1}) to \texttt{q} plus \texttt{i} the stack
+pointer is then decreased by one, resulting in the stack stackindex for the
+desired element being on the top of the stack. If \texttt{i} is out of bounds,
+the error "Array Index Out of Bounds" will be printed to the console and the
+abstract machine will exit with error code 1.
 \begin{ccode}
 final static int INDEX = 26;
 static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
@@ -229,10 +259,10 @@ static int execcode(int[] p, int[] s, int[] iargs, boolean trace) {
         break;
 ...
 \end{ccode}
+\subsubsection*{Comp.fs}
 Now with the new instruction added we can change the compiler to use this new
 feature. In the \texttt{Comp.fs} file in the function \texttt{cAccess} we can
-change the \texttt{AccIndex} case to the following where we first get the array
-then we evaluate the index expression and then used the INDEX instruction.
+change the \texttt{AccIndex} case to the following:
 \begin{fs}
 and cAccess access varEnv funEnv : instr list =
     match access with 
@@ -242,15 +272,20 @@ and cAccess access varEnv funEnv : instr list =
 
 \subsection{Index Checks}
 The \texttt{AccIndex} is used for any array access, where it leaves the index of
-the array access in the stack on the stack top. The array access can be used for assignments
-to the array such as \texttt{arr[i] = 42} where we load the index and uses it to
-save to the array. The array access can also be used in the case of just loading
-the value from the array such as \texttt{x = arr[i] + 2}, where we load the
-index and uses to load the value. In both cases the new index implementation
-will be used, resulting in an index bound checking on both cases.
+the array access on the stack top. The array access will be used for assignments
+to the array such as \texttt{arr[i] = 42} where it loads the index and uses it
+to save to the array. The array access will also be used in the case of just
+loading the value from the array such as \texttt{x = arr[i] + 2}, where we load
+the index and uses to load the value. In both cases the new index implementation
+will be used like the old did, resulting in an index bound checking on both
+cases.
 
 \subsection{Test Program}
-Below is my test code.
+Below is my test code, the result of running it should be that \texttt{i} prints
+one of the elements in the array. \texttt{i} will not go out of bounds when
+\texttt{0 <= i < 3}. \texttt{j} will first store 42 in the array and then print
+it, it will also not go out of bounds when \texttt{0 <= j < 3}
+
 \begin{ccode}
 void main(int i, int j) {
     int arr[3];
@@ -263,19 +298,20 @@ void main(int i, int j) {
 }
 \end{ccode}
 \subsection{Result}
-i=1 and j=1 should output \texttt{20 42} because \texttt{arr[1] = 20}. This
-demonstrates what happens when none of the accesses are out of bounds.
+\texttt{i=1} and \texttt{j=1} should output \texttt{20 42} because
+\texttt{arr[1] = 20}. This demonstrates what happens when none of the accesses
+are out of bounds.
 \begin{bashcode}
 % java Machine examples/ex3.out 1 1
 20 42 
 \end{bashcode}
-i=16 and j=1, here i is out of bounds, creating an "Array Index Out of Bounds"
-error with no other output.
+\texttt{i=16} and \texttt{j=1}, here i is out of bounds, creating an "Array
+Index Out of Bounds" error with no other output.
 \begin{bashcode}
 % java Machine examples/ex3.out 16 1
 Array Index Out of Bounds
 \end{bashcode}
-i=1 and j=16, here j is out of bounds but i is not therefor the output will
+\texttt{i=1} and \texttt{j=16}, here j is out of bounds but i is not therefor the output will
 first be \texttt{20} followed by an Array Index Out of Bounds error.
 \begin{bashcode}
 % java Machine examples/ex3.out 1 16
@@ -339,8 +375,8 @@ let main(args) =
     0;;
 \end{fs}
 \subsection{Makefile}
-The following is the make file I use to compile the MicroC compiler, it first
-compiles the parser and lexer and then it compiles the fsharp code for MicroC.
-The makefile can be run by GNU Make and have been used with GNU Make 3.81 and is
-used by \texttt{make}.
+The following is the make file I use to compile the MicroC compiler with
+\texttt{mcc.fs}, it first compiles the parser and lexer and then it compiles the
+fsharp code for MicroC.  The makefile can be run by GNU Make and have been used
+with GNU Make 3.81 and is used by \texttt{make}.
 \lstinputlisting[numbers=left, language=make, breaklines=true]{../src/Makefile}
